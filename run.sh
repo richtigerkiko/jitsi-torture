@@ -1,17 +1,20 @@
 URL=https://meet.jit.si
-ROOMPREFIX=tester
+ROOMPREFIX=test
 AUDIOSENDERS=0
-
+PARTICIPANTS=5
 ACTIVE_SELENIUMNODES=$( docker ps -a | grep jitsi-meet-torture-selenium-node | wc -l )
 
 
-if [$1 -eq 0]; then
+if [$1 -eq ""]; then
     echo "Setting Participants to Default Value of 5"
-    PARTICIPANTS=5
-else 
+else
     PARTICIPANTS=$1
 fi
 
+function Stop_Docker-Compose(){
+    echo "🛑🛑 Stopping Active docker-compose containers🛑🛑"
+    docker-compose down
+}
 
 function Write_EmptyRows(){
     for i in $(seq 1 $1)
@@ -22,8 +25,7 @@ function Write_EmptyRows(){
 
 function Start_Docker_Compose(){
     Write_EmptyRows 3
-    echo "🛑🛑 Stopping Active docker-compose containers🛑🛑"
-    docker-compose stop
+    Stop_Docker-Compose
     Write_EmptyRows 3
     echo "🚀🚀 Starting docker-compose with enough selenium nodes for test 🚀🚀"
     docker-compose up -d --scale node=$PARTICIPANTS
@@ -41,14 +43,26 @@ function Start_Test(){
         --room-name-prefix=$ROOMPREFIX \
         --hub-url=http://hub:4444/wd/hub \
         --instance-url=$URL
+    Write_EmptyRows 3
+    echo "🚀🚀 🚀🚀"
 }
 
+function End_Test(){
+    Write_EmptyRows 3
+    echo "🛑🛑 Ending Test 🛑🛑"
+    Stop_Docker-Compose
+    exit 0
+}
 
 if [ $ACTIVE_SELENIUMNODES -lt $PARTICIPANTS ]; then
     echo "Not Enough Seleniumnodes detected"
     Start_Docker_Compose
     Start_Test
+    End_Test
 else
     echo "Enough Nodes Present"
     Start_Test
+    End_Test
 fi
+
+

@@ -39,7 +39,7 @@ function Start_Test(){
         --participants=$PARTICIPANTS \
         --senders=$PARTICIPANTS \
         --audio-senders=$AUDIOSENDERS \
-        --duration=300 \
+        --duration=30 \
         --room-name-prefix=$ROOMPREFIX \
         --hub-url=http://hub:4444/wd/hub \
         --instance-url=$URL
